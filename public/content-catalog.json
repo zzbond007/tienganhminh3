@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "status": "approved-for-pilot",
+  "parentApprovalRequired": true,
+  "program": {
+    "months": 9,
+    "worlds": 9,
+    "weeks": 36,
+    "sessions": 180,
+    "focusWords": 288
+  },
+  "learningCycle": [
+    "Tai thính",
+    "Nói cùng Rory",
+    "Mắt tinh",
+    "Kho từ nhớ lâu",
+    "Nhiệm vụ giao tiếp"
+  ],
+  "adaptiveBands": ["Gỡ nút", "Vừa sức", "Bứt phá"],
+  "reviewIntervalsDays": [1, 3, 7]
+}

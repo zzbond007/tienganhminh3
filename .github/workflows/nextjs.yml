@@ -1,0 +1,17 @@
+name: Legacy Next.js template (disabled)
+
+# GitHub tạo tệp mẫu này khi chọn Next.js trong màn hình Pages.
+# English Raccoon dùng deploy-pages.yml vì cần kiểm tra nội dung, base path và PWA ngoại tuyến.
+# Chỉ giữ workflow này ở chế độ chạy thủ công để thay thế bản mẫu cũ đang báo lỗi.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  information:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Show the active workflow
+        run: echo "English Raccoon is deployed by .github/workflows/deploy-pages.yml"
