@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
+import { access, readFile } from "node:fs/promises";
 import test, { after } from "node:test";
 import { fileURLToPath } from "node:url";
 import { createServer } from "vite";
@@ -48,4 +48,32 @@ test("provides direct static params for every week and lesson", async () => {
   assert.equal(lessonRoute.generateStaticParams().length, 180);
   assert.deepEqual(weekRoute.generateStaticParams().at(-1), { id: "36" });
   assert.deepEqual(lessonRoute.generateStaticParams().at(-1), { id: "180" });
+});
+
+test("packages a consistent offline vector illustration for every vocabulary card", async () => {
+  const { weeks } = await vite.ssrLoadModule("/app/english-curriculum.ts");
+  const fileFor = (symbol) => Array.from(symbol).map((character) => character.codePointAt(0).toString(16)).filter((code) => code !== "fe0f").join("-");
+  for (const word of weeks.flatMap((week) => week.words)) {
+    await access(new URL(`../public/illustrations/${fileFor(word.icon)}.svg`, import.meta.url));
+  }
+});
+
+test("adds phonics, rhythm, matching, story ordering and sentence construction", async () => {
+  const source = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
+  for (const component of ["PhonicsLab", "RhythmChant", "PictureDrop", "MemoryMatch", "SentenceBuilder", "SpellingBuilder", "StorySequence"]) {
+    assert.match(source, new RegExp(`function ${component}`));
+  }
+  assert.match(source, /draggable/);
+  assert.match(source, /onDrop/);
+});
+
+test("supports safe v1 migration, streaks, badges, QR transfer and printable week sheets", async () => {
+  const source = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
+  const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+  assert.match(source, /migrateProfile/);
+  assert.match(source, /schemaVersion: 2/);
+  assert.match(source, /calculateStreak/);
+  assert.match(source, /earnedWorlds/);
+  assert.match(source, /QRCode\.toDataURL/);
+  assert.match(css, /@media print/);
 });

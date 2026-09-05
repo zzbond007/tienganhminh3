@@ -1,6 +1,6 @@
 {
-  "schemaVersion": 1,
-  "status": "approved-for-pilot",
+  "schemaVersion": 2,
+  "status": "approved-for-home-use",
   "parentApprovalRequired": true,
   "program": {
     "months": 9,
@@ -17,5 +17,8 @@
     "Nhiệm vụ giao tiếp"
   ],
   "adaptiveBands": ["Gỡ nút", "Vừa sức", "Bứt phá"],
-  "reviewIntervalsDays": [1, 3, 7]
+  "reviewIntervalsDays": [1, 3, 7],
+  "interactiveModes": ["phonics-lab", "rhythm-chant", "picture-drop", "memory-match", "story-sequence", "sentence-builder", "spelling-builder"],
+  "offlineIllustrations": 224,
+  "progressTransfer": ["qr", "json"]
 }

@@ -7,8 +7,8 @@ const curriculum = await readFile(new URL("../app/english-curriculum.ts", import
 if (!/^\d{4}\.\d{2}\.\d{2}\.\d+$/.test(release.version ?? "")) {
   throw new Error("Release version must use YYYY.MM.DD.N format.");
 }
-if (release.approval?.status !== "approved-for-pilot" || release.approval?.parentApprovalRequired !== true) {
-  throw new Error("Pilot content must pass review and remain under parent supervision.");
+if (release.approval?.status !== "approved-for-home-use" || release.approval?.parentApprovalRequired !== true) {
+  throw new Error("Home-use content must pass review and remain under parent supervision.");
 }
 const requiredChecks = ["curriculumAlignment", "answerVerification", "childLanguage", "privacyAndExternalLinks", "audioAndMicrophoneSafety"];
 for (const check of requiredChecks) {
@@ -19,6 +19,9 @@ if (catalog.program?.worlds !== 9 || catalog.program?.weeks !== 36 || catalog.pr
 }
 if (catalog.learningCycle?.length !== 5 || catalog.adaptiveBands?.join("|") !== "Gỡ nút|Vừa sức|Bứt phá") {
   throw new Error("Learning cycle or adaptive bands are incomplete.");
+}
+if (catalog.interactiveModes?.length !== 7 || catalog.offlineIllustrations < 200 || catalog.progressTransfer?.join("|") !== "qr|json") {
+  throw new Error("Version 2 interactive, illustration or transfer capabilities are incomplete.");
 }
 const rowsBlock = curriculum.match(/const rawWeeks:[\s\S]*?= \[([\s\S]*?)\n\];\n\nfunction parseWords/);
 if (!rowsBlock) throw new Error("Could not locate the curated week list.");
