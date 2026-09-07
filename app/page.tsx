@@ -43,6 +43,7 @@ import {
   type WeekPlan,
   type WordCard,
 } from "./english-curriculum";
+import { correctPrefixLength, isPunctuation, sentenceIsCorrect, tokenizeSentence } from "./sentence-builder";
 
 type View =
   | { kind: "home" }
@@ -519,20 +520,84 @@ function MemoryMatch({ words, onDone }: { words: WordCard[]; onDone: (score: num
 }
 
 function SentenceBuilder({ sentence, words, onDone }: { sentence: string; words: WordCard[]; onDone: (score: number, confidence?: number, word?: string) => void }) {
-  const tokens = sentence.match(/[A-Za-z]+(?:'[A-Za-z]+)?|[.,!?]/g) ?? sentence.split(" ");
+  const tokens = tokenizeSentence(sentence);
   const source = tokens.map((token, index) => ({ id: index, token }));
   const shuffled = [...source.slice(1), source[0]].reverse();
   const [placed, setPlaced] = useState<number[]>([]);
   const [checked, setChecked] = useState(false);
   const [wrong, setWrong] = useState(false);
-  function add(id: number) { if (!placed.includes(id) && !checked) { setPlaced((value) => [...value, id]); setWrong(false); } }
+  const [attempts, setAttempts] = useState(0);
+  const [hintLevel, setHintLevel] = useState(0);
+  const [showModel, setShowModel] = useState(false);
+  const orderedTokens = placed.map((id) => source[id].token);
+  const correctPrefix = correctPrefixLength(tokens, orderedTokens);
+  const wordCount = tokens.filter((token) => !isPunctuation(token)).length;
+  const ending = [...tokens].reverse().find((token) => isPunctuation(token));
+
+  function add(id: number) {
+    if (!placed.includes(id) && !checked) {
+      setPlaced((value) => [...value, id]);
+      setWrong(false);
+    }
+  }
+
+  function remove(id: number) {
+    if (!checked) {
+      setPlaced((value) => value.filter((item) => item !== id));
+      setWrong(false);
+    }
+  }
+
+  function openNextHint() {
+    const next = Math.min(3, hintLevel + 1);
+    setHintLevel(next);
+    if (next === 3) {
+      setShowModel(true);
+      speak(sentence, true);
+    }
+  }
+
   function verify() {
     if (placed.length !== source.length) return;
-    const correct = placed.every((id, index) => id === index);
-    if (correct) { setChecked(true); playFeedback("correct"); onDone(100, 84, words.find((word) => sentence.toLowerCase().includes(word.en.toLowerCase()))?.en); }
-    else { setWrong(true); playFeedback("try"); }
+    const correct = sentenceIsCorrect(sentence, orderedTokens);
+    if (correct) {
+      setChecked(true);
+      setWrong(false);
+      playFeedback("correct");
+      onDone(100, 84, words.find((word) => sentence.toLowerCase().includes(word.en.toLowerCase()))?.en);
+    } else {
+      setAttempts((value) => value + 1);
+      setHintLevel((value) => Math.max(value, 1));
+      setWrong(true);
+      playFeedback("try");
+    }
   }
-  return <div className="challenge sentence-builder"><p className="challenge-kicker">Xưởng tạo câu · viết bằng thẻ từ</p><h2>Ghép ý thành một câu trọn vẹn</h2><div className="sentence-drop" onDragOver={(event) => event.preventDefault()} onDrop={(event) => { event.preventDefault(); add(Number(event.dataTransfer.getData("text/plain"))); }}>{placed.length ? placed.map((id) => <button key={id} onClick={() => !checked && setPlaced((value) => value.filter((item) => item !== id))}>{source[id].token}</button>) : <span>Kéo hoặc chạm các từ theo thứ tự câu con muốn nói</span>}</div><div className="sentence-tiles">{shuffled.filter((item) => !placed.includes(item.id)).map((item) => <button key={item.id} draggable onDragStart={(event) => event.dataTransfer.setData("text/plain", String(item.id))} onClick={() => add(item.id)}>{item.token}</button>)}</div><div className="builder-actions"><button onClick={() => { setPlaced([]); setWrong(false); setChecked(false); }}><RefreshCw /> Làm lại</button><button className="check-sentence" disabled={placed.length !== source.length || checked} onClick={verify}><Check /> Kiểm tra ý</button></div>{wrong && <p className="feedback try">Câu chưa thành ý. Tìm từ mở đầu, rồi đọc thành tiếng từng cụm để sắp lại.</p>}{checked && <p className="feedback success"><Check /> Câu đã trọn ý. Bây giờ hãy nói lại và đổi một chi tiết theo ý con.</p>}</div>;
+  return <div className="challenge sentence-builder">
+    <p className="challenge-kicker">Xưởng tạo câu · viết bằng thẻ từ</p>
+    <h2>Ghép ý thành một câu trọn vẹn</h2>
+    <p className="sentence-instruction"><span>1</span> Chọn thẻ theo thứ tự <b>ai → làm gì → chi tiết</b>. Chạm thẻ trong câu để đưa xuống.</p>
+    <div className={wrong ? "sentence-drop needs-fix" : checked ? "sentence-drop is-correct" : "sentence-drop"} onDragOver={(event) => event.preventDefault()} onDrop={(event) => { event.preventDefault(); add(Number(event.dataTransfer.getData("text/plain"))); }}>
+      {placed.length ? placed.map((id, index) => <button key={id} className={hintLevel >= 2 && index < correctPrefix ? "right-place" : ""} onClick={() => remove(id)}>{source[id].token}</button>) : <span>Kéo hoặc chạm các từ theo thứ tự câu con muốn nói</span>}
+    </div>
+    <div className="sentence-tiles">{shuffled.filter((item) => !placed.includes(item.id)).map((item) => <button key={item.id} draggable={!checked} disabled={checked} onDragStart={(event) => event.dataTransfer.setData("text/plain", String(item.id))} onClick={() => add(item.id)}>{item.token}</button>)}</div>
+
+    <div className="builder-actions">
+      <button onClick={() => { setPlaced([]); setWrong(false); setChecked(false); setShowModel(false); }}><RefreshCw /> Xếp lại</button>
+      <button className="hint-button" disabled={checked} onClick={hintLevel < 3 ? openNextHint : () => setShowModel((value) => !value)}><Sparkles /> {hintLevel < 3 ? `Gợi ý tầng ${hintLevel + 1}` : showModel ? "Ẩn câu mẫu" : "Xem lại câu mẫu"}</button>
+      <button className="check-sentence" disabled={placed.length !== source.length || checked} onClick={verify}><Check /> Kiểm tra câu</button>
+    </div>
+
+    {hintLevel > 0 && !checked && <div className={`sentence-hints level-${hintLevel}`} aria-live="polite">
+      <div className="hint-head"><Sparkles /><b>Gợi ý {hintLevel}/3</b><span>Mỗi tầng hé lộ thêm một điểm tựa</span></div>
+      <div className="hint-step unlocked"><b>1 · Tìm khung câu</b><p>Câu có <strong>{wordCount} từ</strong>, mở đầu bằng <strong>“{tokens[0]}”</strong>{ending ? <> và kết thúc bằng dấu <strong>“{ending}”</strong></> : null}.</p></div>
+      {hintLevel >= 2 && <div className="hint-step unlocked"><b>2 · Nhìn bản đồ câu</b><div className="sentence-map">{tokens.map((token, index) => <span key={`${token}-${index}`} className={index < correctPrefix ? "slot-correct" : isPunctuation(token) ? "slot-punctuation" : ""}>{isPunctuation(token) ? token : index === 0 ? token : `${token[0]}${"•".repeat(Math.min(Math.max(token.length - 1, 1), 6))}`}</span>)}</div><p>{correctPrefix === tokens.length ? "Các vị trí đều đã khớp. Con hãy kiểm tra câu." : <>Con đã đặt đúng <strong>{correctPrefix}</strong> thẻ từ đầu. Thẻ đúng tiếp theo bắt đầu bằng <strong>“{tokens[correctPrefix]?.[0]?.toUpperCase()}”</strong>.</>}</p></div>}
+      {hintLevel >= 3 && <div className="hint-step unlocked model-hint"><b>3 · Quan sát – nghe – che mẫu</b>{showModel ? <><p className="model-sentence">{sentence}</p><div className="model-actions"><button onClick={() => speak(sentence, true)}><Volume2 /> Nghe cả câu</button><button onClick={() => setShowModel(false)}>Con đã nhớ · che mẫu</button></div></> : <button className="show-model" onClick={() => setShowModel(true)}>Xem lại đáp án mẫu</button>}</div>}
+    </div>}
+
+    {wrong && <div className="feedback try sentence-feedback"><b>Chưa khớp từ vị trí {correctPrefix + 1}.</b><span>Câu con đang xếp: “{orderedTokens.join(" ")}”</span><span>Dùng gợi ý theo từng tầng, sửa thẻ chưa đúng rồi kiểm tra lại. Con không cần làm lại từ đầu.</span></div>}
+    {checked && <div className="feedback success sentence-feedback"><b><Check /> Chính xác! Câu đúng là: “{sentence}”</b><button onClick={() => speak(sentence, true)}><Volume2 /> Nghe và nói lại</button><span>Bây giờ hãy đổi một chi tiết để tạo câu mới của riêng con.</span></div>}
+    {attempts > 0 && checked && <p className="retry-note">Con đã tự sửa sau {attempts} lượt thử — đó là cách trí nhớ mạnh lên.</p>}
+  </div>;
 }
 
 function SpellingBuilder({ word, onDone }: { word: WordCard; onDone: (score: number, confidence?: number, word?: string) => void }) {
@@ -818,7 +883,7 @@ function ParentView({ profile, setProfile }: { profile: Profile; setProfile: Rea
       const value = url.toString();
       const image = await QRCode.toDataURL(value, { width: 320, margin: 2, errorCorrectionLevel: "L", color: { dark: "#102a43", light: "#ffffff" } });
       setTransferLink(value); setQrImage(image); setMessage("Mở camera trên thiết bị mới và quét mã. Tiến độ chỉ được nhập sau khi xác nhận.");
-    } catch { setMessage("H��� sơ hiện quá lớn cho một mã QR. Hãy dùng tệp JSON để giữ toàn bộ dữ liệu."); }
+    } catch { setMessage("Hồ sơ hiện quá lớn cho một mã QR. Hãy dùng tệp JSON để giữ toàn bộ dữ liệu."); }
   }
   function acceptIncoming() {
     if (!incoming) return;

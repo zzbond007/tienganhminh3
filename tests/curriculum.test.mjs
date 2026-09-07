@@ -65,6 +65,18 @@ test("adds phonics, rhythm, matching, story ordering and sentence construction",
   }
   assert.match(source, /draggable/);
   assert.match(source, /onDrop/);
+  assert.match(source, /Gợi ý tầng/);
+  assert.match(source, /Gợi ý \{hintLevel\}\/3/);
+});
+
+test("accepts the visible sentence even when identical word tiles swap identities", async () => {
+  const { sentenceIsCorrect, tokenizeSentence, correctPrefixLength } = await vite.ssrLoadModule("/app/sentence-builder.ts");
+  const target = "I can see what I can do.";
+  const tokens = tokenizeSentence(target);
+  assert.equal(sentenceIsCorrect(target, ["I", "can", "see", "what", "I", "can", "do", "."]), true);
+  assert.equal(sentenceIsCorrect(target, ["I", "can", "see", "what", "can", "I", "do", "."]), false);
+  assert.equal(sentenceIsCorrect("She's kind!", ["she’s", "kind", "!"]), true);
+  assert.equal(correctPrefixLength(tokens, ["I", "can", "see", "do"]), 3);
 });
 
 test("supports safe v1 migration, streaks, badges, QR transfer and printable week sheets", async () => {

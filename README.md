@@ -36,6 +36,7 @@ Mỗi tuần có 8 từ/cụm từ, một mẫu câu chức năng, một câu m�
 - 224 hình minh họa vector Twemoji được đóng gói cục bộ, hiển thị đồng nhất và dùng được khi ngoại tuyến.
 - 36 Phonics Lab trực quan: nhìn cụm chữ, nghe cả từ chậm/tự nhiên rồi tự nói liền mạch; không dạy trẻ đọc tên chữ thay cho âm.
 - Bảy kiểu hoạt động tương tác: nghe–chọn tranh, kéo/thả, lật thẻ tìm cặp, dựng mạch truyện, ghép câu, xếp chữ tạo từ và chant theo nhịp.
+- Xưởng ghép câu kiểm tra theo nội dung câu thay vì mã thẻ, chấp nhận đúng cả khi câu có từ lặp; ba tầng gợi ý lần lượt mở khung câu, bản đồ vị trí và câu mẫu nghe–nhìn–che.
 - Âm phản hồi đúng/sai/hoàn thành do trình duyệt tạo, có thể tắt trong Góc đồng hành.
 - Chuỗi ngày học, chín huy hiệu thế giới, hoạt ảnh chúc mừng và Rory ở ba trạng thái.
 - QR chuyển tiến độ trực tiếp giữa thiết bị, sao lưu JSON đầy đủ và tự nâng cấp hồ sơ phiên bản cũ.
