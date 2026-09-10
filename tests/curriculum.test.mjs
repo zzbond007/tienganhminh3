@@ -27,8 +27,60 @@ test("every curated week has usable words, a model, reading and a verified answe
     assert.ok(week.model.length > 8, `week ${week.week} model`);
     assert.ok(week.passage.split(/\s+/).length >= 8, `week ${week.week} reading`);
     assert.equal(week.check.options.length, 3, `week ${week.week} options`);
+    assert.equal(new Set(week.check.options).size, 3, `week ${week.week} unique options`);
+    assert.equal(week.check.options.filter((option) => option === week.check.answer).length, 1, `week ${week.week} one answer`);
     assert.ok(week.check.options.includes(week.check.answer), `week ${week.week} answer`);
+    assert.equal(week.soundFamily.length, 3, `week ${week.week} sound family`);
+    assert.equal(week.soundFamily[0], week.sound.split(" trong ")[1], `week ${week.week} sound anchor`);
+    assert.ok(week.mission.length >= 60, `week ${week.week} real-world mission`);
+    assert.ok(week.think.prompt.length >= 20 && week.think.starter.length >= 8, `week ${week.week} open thinking prompt`);
   }
+});
+
+test("keeps early reading light and spirals a previous-week word into every later passage", async () => {
+  const { weeks } = await vite.ssrLoadModule("/app/english-curriculum.ts");
+  for (const week of weeks.slice(0, 4)) {
+    assert.ok((week.passage.match(/[.!?]/g) ?? []).length <= 2, `week ${week.week} early sentence load`);
+    assert.ok(week.passage.split(/\s+/).length <= 12, `week ${week.week} early word load`);
+  }
+  assert.deepEqual(weeks[0].reviewWords, []);
+  for (let index = 1; index < weeks.length; index += 1) {
+    const week = weeks[index];
+    const previousWords = new Set(weeks[index - 1].words.map((word) => word.en.toLowerCase()));
+    assert.ok(week.reviewWords.length >= 1 && week.reviewWords.length <= 2, `week ${week.week} review count`);
+    for (const reviewWord of week.reviewWords) {
+      assert.ok(previousWords.has(reviewWord.toLowerCase()), `week ${week.week} review source: ${reviewWord}`);
+      const escaped = reviewWord.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      assert.match(week.passage, new RegExp(`\\b${escaped}\\b`, "i"), `week ${week.week} passage review: ${reviewWord}`);
+    }
+  }
+});
+
+test("fully restores week 19 and applies the reviewed vocabulary and comprehension fixes", async () => {
+  const { weeks } = await vite.ssrLoadModule("/app/english-curriculum.ts");
+  const week6 = weeks[5];
+  const week7 = weeks[6];
+  const week11 = weeks[10];
+  const week12 = weeks[11];
+  const week18 = weeks[17];
+  const week19 = weeks[18];
+  assert.equal(week6.words.find((word) => word.en === "desk")?.icon, "🖥️");
+  assert.equal(week7.words.find((word) => word.en === "drink")?.icon, "🧃");
+  assert.equal(week7.words.find((word) => word.en === "go")?.icon, "➡️");
+  assert.equal(week18.words.find((word) => word.en === "between")?.icon, "🔲");
+  assert.equal(week12.frame, "Please help me with ___.");
+  assert.equal(week11.check.answer, "Ride a bike and swim");
+  assert.deepEqual(week19.words.map((word) => word.en), ["walk", "bike", "bus", "car", "train", "boat", "plane", "helmet"]);
+  assert.ok(week19.frame && week19.model && week19.sound && week19.passage && week19.check.answer);
+});
+
+test("keeps release metadata and the offline catalog complete JSON documents", async () => {
+  const release = JSON.parse(await readFile(new URL("../public/content-release.json", import.meta.url), "utf8"));
+  const catalog = JSON.parse(await readFile(new URL("../public/content-catalog.json", import.meta.url), "utf8"));
+  assert.equal(release.version, "2026.09.10.1");
+  assert.deepEqual(catalog.reviewIntervalsDays, [1, 3, 7]);
+  assert.equal(catalog.contentQuality.spiralReviewWeeks, 35);
+  assert.equal(catalog.contentQuality.realWorldMissions, 36);
 });
 
 test("keeps child data local and treats speech recording as self-review", async () => {
@@ -67,6 +119,10 @@ test("adds phonics, rhythm, matching, story ordering and sentence construction",
   assert.match(source, /onDrop/);
   assert.match(source, /Gợi ý tầng/);
   assert.match(source, /Gợi ý \{hintLevel\}\/3/);
+  assert.match(source, /Cầu nối trí nhớ/);
+  assert.match(source, /Không có một đáp án duy nhất/);
+  assert.match(source, /Dùng tiếng Anh để tạo một việc thật/);
+  assert.doesNotMatch(source, /Goodbye, chair|seven purple/);
 });
 
 test("accepts the visible sentence even when identical word tiles swap identities", async () => {

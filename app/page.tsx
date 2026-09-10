@@ -228,6 +228,14 @@ function illustrationFile(symbol: string) {
     .join("-");
 }
 
+function HighlightedText({ text, terms }: { text: string; terms: string[] }) {
+  if (!terms.length) return text;
+  const escaped = terms.map((term) => term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+  const pattern = new RegExp(`\\b(${escaped.join("|")})\\b`, "gi");
+  const review = new Set(terms.map((term) => term.toLowerCase()));
+  return <>{text.split(pattern).map((part, index) => review.has(part.toLowerCase()) ? <mark key={`${part}-${index}`}>{part}</mark> : part)}</>;
+}
+
 function VocabularyArt({ symbol, label, size = "medium" }: { symbol: string; label: string; size?: "small" | "medium" | "large" }) {
   const [fallback, setFallback] = useState(false);
   if (fallback) return <span className={`art-fallback art-${size}`} role="img" aria-label={label}>{symbol}</span>;
@@ -380,12 +388,16 @@ function WeekView({ id, profile, navigate }: { id: number; profile: Profile; nav
         <div className="week-badge"><b>{week.words.length}</b><span>từ trọng tâm</span></div>
       </section>
       <section><div className="section-heading"><div><p className="eyebrow">Kho từ tuần này</p><h2>Nhìn tranh · đoán ý · nghe để kiểm tra</h2></div></div><div className="vocab-grid">{week.words.map((word) => <button className="vocab-card" key={word.en} onClick={() => speak(word.en, true)}><VocabularyArt symbol={word.icon} label={word.vi} /><b>{word.en}</b><small>{word.vi}</small><Volume2 /></button>)}</div></section>
+      <section className="week-transfer-grid">
+        <div className="spiral-card"><span className="transfer-icon"><RotateCcw /></span><div><p className="eyebrow">Cầu nối trí nhớ</p><h2>{week.reviewWords.length ? "Gọi lại từ cũ trong ý mới" : "Khởi động hành trình"}</h2><p>{week.reviewWords.length ? "Những từ này đến từ tuần trước và sẽ xuất hiện trong đoạn đọc mới." : "Tuần đầu tiên tạo các điểm tựa nghe – nhìn – nói để dùng lại ở tuần sau."}</p>{week.reviewWords.length ? <div className="review-word-row">{week.reviewWords.map((word) => <button key={word} onClick={() => speak(word, true)}><Volume2 /> {word}</button>)}</div> : <b className="first-week-chip">hello → friend → name</b>}</div></div>
+        <div className="mission-preview"><span className="transfer-icon">🚀</span><div><p className="eyebrow">Thử thách thật</p><h2>Dùng tiếng Anh ngoài màn hình</h2><p>{week.mission}</p></div></div>
+      </section>
       <section><div className="section-heading"><div><p className="eyebrow">Năm buổi ngắn</p><h2>Một vòng học trọn vẹn</h2></div></div><div className="session-list">{sessionKinds.map((session, index) => {
         const lessonId = (id - 1) * 5 + index + 1;
         const record = profile.completedLessons[lessonId];
         return <button key={session.key} className="session-row" onClick={() => navigate({ kind: "lesson", id: lessonId })}><span className="session-icon">{record ? "✓" : session.icon}</span><span><small>Buổi {index + 1}</small><b>{session.title}</b><em>{session.subtitle}</em></span><span className={record ? "done-pill" : "go-pill"}>{record ? `${record.score}%` : "Bắt đầu"}</span></button>;
       })}</div></section>
-      <section className="print-sheet" aria-hidden="true"><h1>English Raccoon · Tuần {week.week}</h1><h2>{week.title}</h2><p>{week.scene}</p><div className="print-words">{week.words.map((word) => <div key={word.en}><VocabularyArt symbol={word.icon} label={word.vi} /><b>{word.en}</b><span>{word.vi}</span></div>)}</div><h3>Câu dùng trong đời sống</h3><p className="print-model">{week.model}</p><h3>Thử thách cùng gia đình</h3><p>Không nhìn màn hình: chọn ba đồ vật hoặc tình huống quanh nhà, dùng ít nhất hai từ trong tuần để nói một câu mới. Người lớn chỉ hỏi “Con muốn nói thêm gì?”, không sửa giữa lúc con đang nói.</p></section>
+      <section className="print-sheet" aria-hidden="true"><h1>English Raccoon · Tuần {week.week}</h1><h2>{week.title}</h2><p>{week.scene}</p><div className="print-words">{week.words.map((word) => <div key={word.en}><VocabularyArt symbol={word.icon} label={word.vi} /><b>{word.en}</b><span>{word.vi}</span></div>)}</div><h3>Câu dùng trong đời sống</h3><p className="print-model">{week.model}</p><h3>Thử thách cùng gia đình</h3><p>{week.mission}</p><h3>Câu hỏi mở</h3><p>{week.think.prompt} <b>{week.think.starter}</b></p></section>
     </div>
   );
 }
@@ -460,7 +472,7 @@ function PhonicsLab({ week, onDone }: { week: WeekPlan; onDone: (score: number, 
   const [heardNatural, setHeardNatural] = useState(false);
   const [said, setSaid] = useState(false);
   function finish() { setSaid(true); playFeedback("correct"); onDone(heardSlow && heardNatural ? 100 : 75, 82, focusWord); }
-  return <div className="challenge phonics-lab"><p className="challenge-kicker">Phòng âm thanh · nghe bằng tai, nhìn bằng mắt</p><h2>Khám phá cụm âm <mark>{focus}</mark></h2><div className="sound-word" aria-label={focusWord}><span>{before}</span><strong>{marked}</strong><span>{after}</span></div><div className="sound-track"><span className={heardSlow ? "done" : ""}>1 · Nghe chậm</span><i /><span className={heardNatural ? "done" : ""}>2 · Nối liền</span><i /><span className={said ? "done" : ""}>3 · Tự nói</span></div><div className="phonics-actions"><button onClick={() => { setHeardSlow(true); speak(focusWord, true); }}><Volume2 /> Kéo chậm cả từ</button><button onClick={() => { setHeardNatural(true); speak(focusWord); }}><Play /> Nghe tự nhiên</button><button className="say-it" onClick={finish}><Mic /> Con nói liền một hơi</button></div><p className="tip">Phần màu cam là cụm chữ cần để ý. Tai nghe cả từ trước; miệng nối âm liền mạch, không đọc tên từng chữ cái.</p></div>;
+  return <div className="challenge phonics-lab"><p className="challenge-kicker">Phòng âm thanh · nghe bằng tai, nhìn bằng mắt</p><h2>Khám phá cụm âm <mark>{focus}</mark></h2><div className="sound-word" aria-label={focusWord}><span>{before}</span><strong>{marked}</strong><span>{after}</span></div><div className="sound-family"><small>Ba từ cùng đường âm</small><div>{week.soundFamily.map((word, familyIndex) => <button key={word} onClick={() => speak(word, familyIndex === 0)}><span>{familyIndex + 1}</span><b>{word}</b><Volume2 /></button>)}</div></div><div className="sound-track"><span className={heardSlow ? "done" : ""}>1 · Nghe chậm</span><i /><span className={heardNatural ? "done" : ""}>2 · Nối liền</span><i /><span className={said ? "done" : ""}>3 · Tự nói</span></div><div className="phonics-actions"><button onClick={() => { setHeardSlow(true); speak(focusWord, true); }}><Volume2 /> Kéo chậm cả từ</button><button onClick={() => { setHeardNatural(true); speak(focusWord); }}><Play /> Nghe tự nhiên</button><button className="say-it" onClick={finish}><Mic /> Con nói liền một hơi</button></div><p className="tip">Nghe ba từ để tìm phần âm giống nhau, rồi nói cả từ liền mạch. Không đọc tên từng chữ cái.</p></div>;
 }
 
 function RhythmChant({ words, onDone }: { words: WordCard[]; onDone: (score: number, confidence?: number, word?: string) => void }) {
@@ -591,7 +603,7 @@ function SentenceBuilder({ sentence, words, onDone }: { sentence: string; words:
       <div className="hint-head"><Sparkles /><b>Gợi ý {hintLevel}/3</b><span>Mỗi tầng hé lộ thêm một điểm tựa</span></div>
       <div className="hint-step unlocked"><b>1 · Tìm khung câu</b><p>Câu có <strong>{wordCount} từ</strong>, mở đầu bằng <strong>“{tokens[0]}”</strong>{ending ? <> và kết thúc bằng dấu <strong>“{ending}”</strong></> : null}.</p></div>
       {hintLevel >= 2 && <div className="hint-step unlocked"><b>2 · Nhìn bản đồ câu</b><div className="sentence-map">{tokens.map((token, index) => <span key={`${token}-${index}`} className={index < correctPrefix ? "slot-correct" : isPunctuation(token) ? "slot-punctuation" : ""}>{isPunctuation(token) ? token : index === 0 ? token : `${token[0]}${"•".repeat(Math.min(Math.max(token.length - 1, 1), 6))}`}</span>)}</div><p>{correctPrefix === tokens.length ? "Các vị trí đều đã khớp. Con hãy kiểm tra câu." : <>Con đã đặt đúng <strong>{correctPrefix}</strong> thẻ từ đầu. Thẻ đúng tiếp theo bắt đầu bằng <strong>“{tokens[correctPrefix]?.[0]?.toUpperCase()}”</strong>.</>}</p></div>}
-      {hintLevel >= 3 && <div className="hint-step unlocked model-hint"><b>3 · Quan sát – nghe – che mẫu</b>{showModel ? <><p className="model-sentence">{sentence}</p><div className="model-actions"><button onClick={() => speak(sentence, true)}><Volume2 /> Nghe cả câu</button><button onClick={() => setShowModel(false)}>Con đã nhớ · che mẫu</button></div></> : <button className="show-model" onClick={() => setShowModel(true)}>Xem lại đáp án mẫu</button>}</div>}
+      {hintLevel >= 3 && <div className="hint-step unlocked model-hint"><b>3 · Quan sát – nghe – che mẫu</b>{showModel ? <><p className="hint-model-sentence">{sentence}</p><div className="model-actions"><button onClick={() => speak(sentence, true)}><Volume2 /> Nghe cả câu</button><button onClick={() => setShowModel(false)}>Con đã nhớ · che mẫu</button></div></> : <button className="show-model" onClick={() => setShowModel(true)}>Xem lại đáp án mẫu</button>}</div>}
     </div>}
 
     {wrong && <div className="feedback try sentence-feedback"><b>Chưa khớp từ vị trí {correctPrefix + 1}.</b><span>Câu con đang xếp: “{orderedTokens.join(" ")}”</span><span>Dùng gợi ý theo từng tầng, sửa thẻ chưa đúng rồi kiểm tra lại. Con không cần làm lại từ đầu.</span></div>}
@@ -658,7 +670,7 @@ function Challenge({ week, lessonId, sessionIndex, step, band, onDone }: Challen
     if (step === 3) return <StorySequence passage={week.passage} onDone={onDone} />;
     if (step === 4) return <SentenceBuilder sentence={week.model} words={week.words} onDone={onDone} />;
     if (step === 2) {
-      return <div className="challenge reading-challenge"><p className="challenge-kicker">Đọc để tìm ý</p><div className="reading-card"><BookOpen /><p>{week.passage}</p></div><h2>{week.check.question}</h2><div className="choice-list">{week.check.options.map((option) => <button key={option} className={chosen === option ? (option === week.check.answer ? "correct" : "wrong") : ""} onClick={() => choose(option, week.check.answer)}>{option}</button>)}</div>{chosen && chosen !== week.check.answer && <p className="feedback try">Đọc lại câu có từ khóa. Con vẫn còn một lượt thử.</p>}{chosen === week.check.answer && <p className="feedback success"><Check /> Đúng rồi. Con đã tìm được ý quan trọng.</p>}</div>;
+      return <div className="challenge reading-challenge"><p className="challenge-kicker">Đọc để tìm ý</p><div className="reading-card"><BookOpen /><div>{week.reviewWords.length > 0 && <small><RotateCcw /> Từ tuần trước được tô sáng</small>}<p><HighlightedText text={week.passage} terms={week.reviewWords} /></p></div></div><h2>{week.check.question}</h2><div className="choice-list">{week.check.options.map((option) => <button key={option} className={chosen === option ? (option === week.check.answer ? "correct" : "wrong") : ""} onClick={() => choose(option, week.check.answer)}>{option}</button>)}</div>{chosen && chosen !== week.check.answer && <p className="feedback try">Đọc lại từng câu và loại phương án không khớp chi tiết. Con vẫn còn lượt thử.</p>}{chosen === week.check.answer && <><p className="feedback success"><Check /> Đúng rồi. Con đã tìm được bằng chứng trong đoạn đọc.</p><div className="think-card"><span>🧠 Không có một đáp án duy nhất</span><h3>{week.think.prompt}</h3><p>Bắt đầu bằng: <b>{week.think.starter}</b></p><button onClick={() => speak(week.think.starter, true)}><Volume2 /> Nghe câu mở đầu</button></div></>}</div>;
     }
     return <div className="challenge reading-challenge"><p className="challenge-kicker">Từ trong ngữ cảnh</p><h2>Tranh nào hoàn thiện ý “{target.vi}”?</h2><p className="mini-context">{week.scene}</p><div className="picture-choices">{choices.map((word) => <button key={word.en} className={chosen === word.en ? (word.en === target.en ? "correct" : "wrong") : ""} onClick={() => choose(word.en, target.en, target.en)}><VocabularyArt symbol={word.icon} label={word.vi} /><b>{word.en}</b></button>)}</div>{chosen === target.en && <p className="feedback success"><Check /> Con đã nối hình, nghĩa và từ trong cùng một ý.</p>}</div>;
   }
@@ -672,13 +684,15 @@ function Challenge({ week, lessonId, sessionIndex, step, band, onDone }: Challen
   if (sessionIndex === 4) {
     if (step === 1) return <PictureDrop words={choices} onDone={onDone} />;
     if (step === 3) return <SentenceBuilder sentence={week.model} words={week.words} onDone={onDone} />;
-    if (step === 4) return <div className="challenge mission-challenge"><p className="challenge-kicker">Nhiệm vụ ngoài màn hình</p><Rory mood="brave" /><h2>Dùng tiếng Anh trong cảnh thật</h2><p className="mission-scene">{week.scene}</p><p className="big-phrase">Bắt đầu bằng: {week.frame}</p><p className="tip">Nhìn quanh con, chọn một người hoặc đồ vật thật, rồi thay chỗ trống bằng ý của chính con.</p><Recorder onPractised={(confidence) => onDone(confidence >= 75 ? 100 : 70, confidence, target.en)} /></div>;
+    if (step === 4) return <div className="challenge mission-challenge"><p className="challenge-kicker">Nhiệm vụ ngoài màn hình</p><Rory mood="brave" /><h2>Dùng tiếng Anh để tạo một việc thật</h2><div className="mission-route"><span><b>1</b> Nhìn thật</span><i /><span><b>2</b> Nói thật</span><i /><span><b>3</b> Đổi ý</span></div><p className="mission-scene">{week.mission}</p><p className="big-phrase">Điểm xuất phát: {week.frame}</p><p className="tip">Con có thể thay từ, thêm lý do hoặc đổi vai. Mục tiêu là làm người nghe hiểu ý, không phải đọc thuộc câu mẫu.</p><Recorder onPractised={(confidence) => onDone(confidence >= 75 ? 100 : 70, confidence, target.en)} /></div>;
+    const nearbyModels = [weeks[week.week % weeks.length].model, weeks[(week.week + 7) % weeks.length].model];
+    const contextChoices = [week.model, ...nearbyModels];
+    const rotatedContextChoices = contextChoices.slice(week.week % 3).concat(contextChoices.slice(0, week.week % 3));
     const missionPrompts = [
-      { q: `Trong tình huống “${week.scene}”, câu nào giúp con bắt đầu giao tiếp?`, a: week.model, opts: [week.model, "Goodbye, chair!", "I am a pencil."] },
+      { q: `Trong tình huống “${week.scene}”, câu nào mở đúng chủ đề?`, a: week.model, opts: rotatedContextChoices },
       { q: `Chọn từ đúng để dùng trong mẫu: ${week.frame}`, a: target.en, opts: [target.en, ...choices.filter((word) => word.en !== target.en).slice(0, 2).map((word) => word.en)] },
       { q: week.check.question, a: week.check.answer, opts: week.check.options },
-      { q: `Câu nào dùng từ “${target.en}” tự nhiên nhất?`, a: week.frame.replace("___", target.en), opts: [week.frame.replace("___", target.en), `${target.en} is seven purple.`, `Goodbye ${target.en} because.`] },
-      { q: "Nhiệm vụ cuối: chọn câu con muốn nói thành tiếng.", a: week.model, opts: [week.model, week.frame.replace("___", target.en), `I remember the word ${target.en}.`] },
+      { q: "Câu nào dùng trọn vẹn mẫu giao tiếp của tuần này?", a: week.model, opts: rotatedContextChoices },
     ];
     const mission = missionPrompts[step];
     return <div className="challenge mission-challenge"><p className="challenge-kicker">Mini mission · chọn ngôn ngữ có mục đích</p><div className="dialogue-rory"><Rory mood="listen" /><p>{mission.q}</p></div><div className="choice-list">{mission.opts.map((option) => <button key={option} className={chosen === option ? (option === mission.a ? "correct" : "wrong") : ""} onClick={() => choose(option, mission.a, target.en)}>{option}</button>)}</div>{chosen === mission.a && <div className="feedback success"><Check /> Câu này phù hợp với tình huống. <button onClick={() => speak(mission.a)}><Volume2 /> Nghe rồi đổi một chi tiết</button></div>}</div>;

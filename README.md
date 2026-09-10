@@ -21,7 +21,7 @@ English Raccoon là ứng dụng web/PWA miễn phí cho trẻ 8–9 tuổi. Ch�
 8. Little Explorer – giác quan, vật liệu và môi trường.
 9. Brave Speaker – lập kế hoạch, giải quyết vấn đề và trình bày.
 
-Mỗi tuần có 8 từ/cụm từ, một mẫu câu chức năng, một câu mẫu, một phòng âm, một đoạn truyện ngắn và câu hỏi hiểu ý. Năm buổi trong tuần lần lượt là:
+Mỗi tuần có 8 từ/cụm từ, một mẫu câu chức năng, một câu mẫu, một phòng âm, một đoạn truyện ngắn, câu hỏi hiểu ý, câu hỏi mở và nhiệm vụ dùng ngoài đời. Năm buổi trong tuần lần lượt là:
 
 1. **Tai thính** – nghe trước khi nhìn chữ, nhận ra ý từ tranh và chant bốn nhịp.
 2. **Nói cùng Rory** – Phonics Lab, nghe chậm/nghe tự nhiên, ghi âm và tự nghe lại.
@@ -42,6 +42,15 @@ Mỗi tuần có 8 từ/cụm từ, một mẫu câu chức năng, một câu m�
 - QR chuyển tiến độ trực tiếp giữa thiết bị, sao lưu JSON đầy đủ và tự nâng cấp hồ sơ phiên bản cũ.
 - Phiếu khám phá từng tuần để in/PDF, kèm nhiệm vụ dùng tiếng Anh ngoài màn hình.
 - Góc phụ huynh chỉ ra các từ còn yếu và gợi ý đưa chúng vào tình huống thực tế.
+
+### Nâng cấp nội dung 2.1
+
+- Đã đối chiếu đủ 36 tuần thay vì đánh giá trên phần tệp bị cắt khi hiển thị; quy trình phát hành nay kiểm tra riêng 36 dòng nội dung và 36 dòng hoạt động mở rộng.
+- Tuần 1–4 dùng đoạn đọc tối đa hai câu; từ tuần 2 trở đi, mỗi đoạn đọc cài tự nhiên một hoặc hai từ của tuần trước và tô sáng chúng để tạo ôn xoắn ốc.
+- Mỗi tuần có một nhiệm vụ ngoài đời cụ thể, một câu hỏi mở không có đáp án duy nhất và một câu mở đầu để bé tự diễn đạt.
+- Phonics Lab dùng một nhóm ba từ cùng đường âm để bé nghe–so sánh–khái quát, thay vì chỉ lặp một từ.
+- Sửa biểu tượng dễ gây nhầm ở các tuần 6, 7 và 18; đơn giản hóa lời nhờ giúp đỡ ở tuần 12; sửa câu hỏi tuần 11 để chỉ còn một đáp án đúng.
+- Các phương án nhiễu ở nhiệm vụ giao tiếp đều là câu tiếng Anh tự nhiên thuộc những chủ đề lân cận, không còn câu vô nghĩa để bé loại bằng mẹo.
 
 ## Nguyên tắc giáo dục
 

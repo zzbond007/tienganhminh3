@@ -33,8 +33,10 @@ Mỗi buổi có năm lượt ngắn. Nội dung mới được đan với nội
 - Hình vector chỉ là gợi ý ý nghĩa; trẻ luôn phải nghe hoặc dùng từ, không chỉ gọi tên tranh.
 - Kéo/thả có phương án chạm–chạm để dùng được trên iPad, điện thoại và bàn phím.
 - Ghép câu và dựng truyện làm hiện ra cấu trúc ngôn ngữ bằng không gian; sai được sửa bằng gợi ý chiến lược, không hiện đáp án ngay.
-- Phonics Lab tô sáng cụm chữ trong cả từ và cho nghe hai tốc độ. Ứng dụng không phát âm một cụm chữ bằng tên chữ cái vì có thể tạo mẫu âm sai.
+- Phonics Lab tô sáng cụm chữ trong cả từ, cho nghe hai tốc độ và đặt ba từ cùng đường âm cạnh nhau để trẻ tự nhận ra mẫu. Ứng dụng không phát âm một cụm chữ bằng tên chữ cái vì có thể tạo mẫu âm sai.
 - Chant dùng bốn nhịp ngắn do trẻ chủ động bấm/vỗ, không dùng bài hát có bản quyền hay nhạc nền gây phân tán.
+- Đoạn đọc tô sáng từ đã gặp ở tuần trước. Cách hiển thị này biến việc ôn thành một phần của ý mới, thay vì quay lại học danh sách cũ.
+- Sau câu hỏi tìm bằng chứng, trẻ nhận một câu hỏi mở và câu khởi đầu để nêu lựa chọn, lý do hoặc dự đoán của mình.
 
 ## 5. Ba nhịp thích ứng
 
@@ -51,8 +53,9 @@ Nhịp được tính từ tối đa tám buổi gần nhất. Không đổi nh�
 - 9 thế giới × 4 tuần = 36 tuần.
 - 36 tuần × 5 buổi = 180 buổi.
 - 8 vị trí từ/cụm từ trọng tâm mỗi tuần = 288 vị trí luyện tập; từ quan trọng có thể tái xuất hiện ở bối cảnh mới.
-- Mỗi tuần có: ngữ cảnh, từ/cụm, mẫu câu, câu mẫu, trọng tâm âm, đoạn đọc và câu hỏi hiểu ý.
+- Mỗi tuần có: ngữ cảnh, từ/cụm, mẫu câu, câu mẫu, trọng tâm âm và họ ba từ, đoạn đọc có cầu nối tuần trước, câu hỏi tìm bằng chứng, câu hỏi mở và nhiệm vụ ngoài đời.
 - Nội dung tăng dần từ gọi tên/giới thiệu đến giải thích lựa chọn, lập kế hoạch và trình bày ngắn.
+- Tuần 1–4 giới hạn đoạn đọc ở tối đa hai câu; độ dài và yêu cầu suy luận tăng dần sau khi trẻ đã có điểm tựa.
 
 ## 7. Căn cứ thiết kế
 

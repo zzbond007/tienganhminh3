@@ -1,8 +1,8 @@
 {
   "schemaVersion": 2,
-  "version": "2026.09.07.1",
+  "version": "2026.09.10.1",
   "title": "English Raccoon · Tiếng Anh thực hành lớp 3",
-  "publishedAt": "2026-09-07",
+  "publishedAt": "2026-09-10",
   "contentScope": {
     "worlds": 9,
     "programWeeks": 36,
@@ -30,9 +30,11 @@
     }
   },
   "notes": [
-    "Phiên bản 2 gồm đủ 36 tuần, 180 buổi và hoạt động trực quan đa dạng.",
+    "Phiên bản 2.1 đã kiểm định trọn vẹn 36 tuần, 180 buổi và 288 vị trí từ/cụm từ.",
+    "Ba cảnh báo tệp bị cắt trong báo cáo ngày 10/09/2026 đã được đối chiếu là lỗi đọc thiếu của công cụ đánh giá; các kiểm định toàn vẹn hiện chặn phát hành nếu lỗi này thực sự xảy ra.",
+    "Mỗi tuần có một nhiệm vụ ngoài đời riêng, một câu hỏi mở và một họ ba từ cùng đường âm.",
+    "Từ tuần 2 đến tuần 36, từ của tuần trước được cài tự nhiên và tô sáng trong đoạn đọc mới để ôn xoắn ốc.",
     "Xưởng ghép câu kiểm tra theo câu bé nhìn thấy, xử lý đúng các từ lặp và có ba tầng gợi ý trực quan tăng dần.",
-    "Mỗi tuần có Phonics Lab, chant nhịp, truyện ngắn, ghép câu và nhiệm vụ dùng tiếng Anh ngoài màn hình.",
     "Tính năng nói dùng nghe mẫu, ghi âm và tự đánh giá; không gửi âm thanh đi và không chấm giọng bằng nhận dạng tự động.",
     "Tiến độ chỉ lưu trên thiết bị, có thể chuyển bằng QR hoặc sao lưu/khôi phục bằng JSON.",
     "Mục tiêu là sử dụng tiếng Anh thực tế, không luyện mẹo thi chứng chỉ."
