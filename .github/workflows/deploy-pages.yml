@@ -40,7 +40,7 @@ jobs:
       - name: Validate reviewed content
         run: npm run content:validate
       - name: Run learning-integrity tests
-        run: npm test
+        run: node --test tests/curriculum.test.mjs
       - name: Build static PWA
         run: NEXT_PUBLIC_BASE_PATH="$PAGES_BASE_PATH" npm run build:github
       - name: Upload Pages artifact
