@@ -7,6 +7,9 @@ const curriculum = await readFile(new URL("../app/english-curriculum.ts", import
 if (!/^\d{4}\.\d{2}\.\d{2}\.\d+$/.test(release.version ?? "")) {
   throw new Error("Release version must use YYYY.MM.DD.N format.");
 }
+if (release.schemaVersion !== 3 || catalog.schemaVersion !== 3) {
+  throw new Error("Learning-integrity release metadata must use schema version 3.");
+}
 if (release.approval?.status !== "approved-for-home-use" || release.approval?.parentApprovalRequired !== true) {
   throw new Error("Home-use content must pass review and remain under parent supervision.");
 }
@@ -26,7 +29,10 @@ if (!requiredModes.every((mode) => catalog.interactiveModes?.includes(mode)) || 
 }
 const quality = catalog.contentQuality;
 if (quality?.earlyReadingMaxSentences !== 2 || quality?.spiralReviewWeeks !== 35 || quality?.soundFamilies !== 36 || quality?.openThinkingPrompts !== 36 || quality?.realWorldMissions !== 36) {
-  throw new Error("Version 2.1 content-quality guarantees are incomplete.");
+  throw new Error("Core content-quality guarantees are incomplete.");
+}
+if (quality?.balancedAnswerPositions !== true || quality?.speakingEvidenceRequired !== true || quality?.hintAwareScoring !== true) {
+  throw new Error("Version 2.2 learning-integrity guarantees are incomplete.");
 }
 const rowsBlock = curriculum.match(/const rawWeeks:[\s\S]*?= \[([\s\S]*?)\n\];\n\ntype WeekEnrichment/);
 if (!rowsBlock) throw new Error("Could not locate the curated week list.");
@@ -43,5 +49,8 @@ if (!enrichmentBlock) throw new Error("Could not locate the learning-enrichment 
 const enrichmentRows = enrichmentBlock[1].match(/^\s{2}\["/gm) ?? [];
 if (enrichmentRows.length !== 36) throw new Error(`Expected 36 enrichment rows, found ${enrichmentRows.length}.`);
 if (!curriculum.includes("Pre‑A1 vững · tiếp cận A1")) throw new Error("Year target is missing from the curriculum.");
+if (!curriculum.includes("orderChoiceOptions(row[8].split(\";\"), row[9], index + 1)")) {
+  throw new Error("Reading answer positions are not balanced at the curriculum boundary.");
+}
 
 console.log(`English Raccoon ${release.version} passed: 36 weeks, 180 sessions, 288 focus word slots, 35 spiral reviews and 36 real-world missions.`);

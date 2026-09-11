@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 3,
   "status": "approved-for-home-use",
   "parentApprovalRequired": true,
   "program": {
@@ -25,7 +25,10 @@
     "spiralReviewWeeks": 35,
     "soundFamilies": 36,
     "openThinkingPrompts": 36,
-    "realWorldMissions": 36
+    "realWorldMissions": 36,
+    "balancedAnswerPositions": true,
+    "speakingEvidenceRequired": true,
+    "hintAwareScoring": true
   },
   "progressTransfer": ["qr", "json"]
 }

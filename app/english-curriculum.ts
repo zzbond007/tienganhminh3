@@ -1,3 +1,5 @@
+import { orderChoiceOptions } from "./learning-integrity";
+
 export type WordCard = {
   en: string;
   vi: string;
@@ -176,7 +178,7 @@ export const weeks: WeekPlan[] = rawWeeks.map((row, index) => ({
   think: enrichments[index].think,
   check: {
     question: row[7],
-    options: row[8].split(";"),
+    options: orderChoiceOptions(row[8].split(";"), row[9], index + 1),
     answer: row[9],
   },
 }));

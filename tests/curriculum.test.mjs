@@ -37,6 +37,21 @@ test("every curated week has usable words, a model, reading and a verified answe
   }
 });
 
+test("balances correct-answer positions across all reading checks", async () => {
+  const { weeks } = await vite.ssrLoadModule("/app/english-curriculum.ts");
+  const positions = weeks.map((week) => week.check.options.indexOf(week.check.answer));
+  assert.deepEqual([...new Set(positions)].sort(), [0, 1, 2]);
+  assert.deepEqual([0, 1, 2].map((position) => positions.filter((value) => value === position).length), [12, 12, 12]);
+});
+
+test("prevents diagnostic first-choice gaming and marks listening evidence", async () => {
+  const { diagnosticItems } = await vite.ssrLoadModule("/app/diagnostic-items.ts");
+  const positions = diagnosticItems.map((item) => item.options.indexOf(item.answer));
+  assert.ok(new Set(positions).size === 3);
+  assert.ok(positions.filter((position) => position === 0).length <= 3);
+  assert.ok(diagnosticItems.filter((item) => item.mode === "listen").every((item) => item.spoken));
+});
+
 test("keeps early reading light and spirals a previous-week word into every later passage", async () => {
   const { weeks } = await vite.ssrLoadModule("/app/english-curriculum.ts");
   for (const week of weeks.slice(0, 4)) {
@@ -77,7 +92,7 @@ test("fully restores week 19 and applies the reviewed vocabulary and comprehensi
 test("keeps release metadata and the offline catalog complete JSON documents", async () => {
   const release = JSON.parse(await readFile(new URL("../public/content-release.json", import.meta.url), "utf8"));
   const catalog = JSON.parse(await readFile(new URL("../public/content-catalog.json", import.meta.url), "utf8"));
-  assert.equal(release.version, "2026.09.10.1");
+  assert.equal(release.version, "2026.09.11.1");
   assert.deepEqual(catalog.reviewIntervalsDays, [1, 3, 7]);
   assert.equal(catalog.contentQuality.spiralReviewWeeks, 35);
   assert.equal(catalog.contentQuality.realWorldMissions, 36);
@@ -135,11 +150,35 @@ test("accepts the visible sentence even when identical word tiles swap identitie
   assert.equal(correctPrefixLength(tokens, ["I", "can", "see", "do"]), 3);
 });
 
+test("accepts visible spellings with repeated letters and scores hints honestly", async () => {
+  const { spellingIsCorrect, scoreWithSupport, averageSpeakingConfidence } = await vite.ssrLoadModule("/app/learning-integrity.ts");
+  assert.equal(spellingIsCorrect("window", ["w", "i", "n", "d", "o", "w"]), true);
+  assert.equal(spellingIsCorrect("football", ["f", "o", "o", "t", "b", "a", "l", "l"]), true);
+  assert.equal(spellingIsCorrect("in front of", ["i", "n", " ", "f", "r", "o", "n", "t", " ", "o", "f"]), true);
+  assert.equal(spellingIsCorrect("window", ["w", "i", "n", "d", "w", "o"]), false);
+  assert.equal(scoreWithSupport(0, 0), 100);
+  assert.ok(scoreWithSupport(1, 0) < 100);
+  assert.ok(scoreWithSupport(3, 0) < scoreWithSupport(1, 0));
+  assert.ok(scoreWithSupport(1, 1) < 100);
+  assert.equal(averageSpeakingConfidence([{ speakingConfidence: 78, speakingSamples: 1 }, { speakingConfidence: 92, speakingSamples: 1 }, {}]), 85);
+  assert.equal(averageSpeakingConfidence([{ speakingConfidence: 78, speakingSamples: 0 }, {}]), undefined);
+});
+
+test("requires speaking evidence and never generates sentences by inserting arbitrary vocabulary", async () => {
+  const source = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
+  assert.doesNotMatch(source, /practiceFrame|frame\.replace\("___"/);
+  assert.match(source, /step === 1 \? target\.en : week\.model/);
+  assert.match(source, /if \(typeof confidence === "number"\)/);
+  assert.match(source, /Chưa có dữ liệu nói/);
+  assert.match(source, /disabled=\{item\.mode === "listen" && !heard\}/);
+  assert.match(source, /measurementVersion: 3/);
+});
+
 test("supports safe v1 migration, streaks, badges, QR transfer and printable week sheets", async () => {
   const source = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
   const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
   assert.match(source, /migrateProfile/);
-  assert.match(source, /schemaVersion: 2/);
+  assert.match(source, /schemaVersion: 3/);
   assert.match(source, /calculateStreak/);
   assert.match(source, /earnedWorlds/);
   assert.match(source, /QRCode\.toDataURL/);
