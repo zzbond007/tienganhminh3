@@ -1,0 +1,57 @@
+.speech-control-wrap { display: grid; justify-items: center; width: 100%; }
+.speech-fallback { display: flex; align-items: center; justify-content: center; gap: .55rem; width: min(100%,560px); margin: -.45rem auto .8rem; padding: .65rem .75rem; border: 1px solid #f0c49f; border-radius: 14px; background: #fff8ec; color: #835016; flex-wrap: wrap; }
+.speech-fallback p { margin: 0; font-size: .82rem; font-weight: 800; }
+.speech-fallback button { display: inline-flex; min-height: 40px; align-items: center; gap: .35rem; padding: .45rem .65rem; border: 1px solid #d9964a; border-radius: 11px; background: #fff; color: #835016; cursor: pointer; font-size: .8rem; font-weight: 850; }
+.speech-fallback button svg { width: 1rem; }
+.record-error { width: fit-content; margin: .7rem auto 0; background: #fff1de; color: #98550c; }
+.recording-live { display: flex; align-items: center; justify-content: center; gap: .45rem; margin: .65rem 0 0; color: #b83f3f; font-size: .85rem; font-weight: 850; }
+.recording-live span { width: 11px; height: 11px; border-radius: 50%; background: #e54848; box-shadow: 0 0 0 5px #ffe1e1; animation: recordPulse 1s ease-in-out infinite; }
+.direct-speech-option { display: block; margin: .7rem auto 0; border: 0; background: transparent; color: var(--teal-dark); cursor: pointer; font-size: .82rem; font-weight: 850; text-decoration: underline; text-underline-offset: .2em; }
+.direct-speech-card { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: .7rem; margin-top: .7rem; padding: .75rem; border: 1px solid #9ed5d1; border-radius: 16px; background: var(--aqua); text-align: left; }
+.direct-speech-card > span { font-size: 2rem; }
+.direct-speech-card b, .direct-speech-card p { display: block; }
+.direct-speech-card p { margin: .1rem 0 0; color: var(--muted-ink); font-size: .78rem; }
+.direct-speech-card button { display: inline-flex; min-height: 42px; align-items: center; gap: .35rem; padding: .5rem .7rem; border: 0; border-radius: 12px; background: var(--teal-dark); color: #fff; cursor: pointer; font-size: .82rem; font-weight: 850; }
+.direct-speech-card button svg { width: 1rem; }
+
+.dialogue-practice { align-items: stretch; text-align: left; }
+.dialogue-practice > h2, .dialogue-practice > .challenge-kicker { text-align: center; }
+.dialogue-purpose { display: flex; align-items: center; justify-content: center; gap: .45rem; margin: 0 auto 1rem; padding: .6rem .8rem; border-radius: 13px; background: #eef4ff; color: #425d86; font-size: .84rem; font-weight: 800; text-align: center; }
+.dialogue-purpose svg { flex: 0 0 auto; width: 1.05rem; }
+.dialogue-progress { display: grid; width: min(100%,660px); margin: 0 auto; gap: .55rem; }
+.dialogue-progress article { display: grid; grid-template-columns: auto 1fr; align-items: start; gap: .55rem; max-width: 88%; padding: .7rem; border: 2px solid transparent; border-radius: 20px; background: #eef3f6; color: var(--muted-ink); opacity: .68; transition: .2s ease; }
+.dialogue-progress article.rory-turn { margin-right: auto; border-top-left-radius: 6px; }
+.dialogue-progress article.child-turn { margin-left: auto; border-top-right-radius: 6px; background: #fff0e8; }
+.dialogue-progress article.current { border-color: var(--teal); background: var(--aqua); color: var(--ink); opacity: 1; box-shadow: 0 8px 22px rgba(10,166,166,.1); }
+.dialogue-progress article.child-turn.current { border-color: #ef9b69; background: #fff3eb; box-shadow: 0 8px 22px rgba(239,155,105,.12); }
+.dialogue-progress article.done { opacity: .82; }
+.speaker-avatar { display: grid; width: 38px; height: 38px; place-items: center; border-radius: 13px; background: #fff; font-size: 1.35rem; box-shadow: 0 3px 8px rgba(16,42,67,.08); }
+.dialogue-progress small { color: var(--teal-dark); font-size: .68rem; font-weight: 900; text-transform: uppercase; }
+.dialogue-progress .child-turn small { color: #b95d27; }
+.dialogue-progress p { margin: .08rem 0 0; font-size: 1rem; font-weight: 800; line-height: 1.45; }
+.current-turn-actions, .child-response { display: grid; justify-items: center; width: min(100%,660px); margin: 1rem auto 0; }
+.current-turn-actions > [data-slot="button"] { margin-top: .2rem; }
+.speech-control { display: inline-flex; min-height: 48px; align-items: center; justify-content: center; gap: .45rem; margin-bottom: .75rem; padding: .6rem .9rem; border: 0; border-radius: 999px; background: var(--navy); color: #fff; cursor: pointer; font-weight: 900; }
+.speech-control svg { width: 1.1rem; }
+.turn-tip { margin: .6rem 0 0; color: var(--muted-ink); font-size: .78rem; text-align: center; }
+.response-support { width: 100%; margin-bottom: .75rem; padding: .8rem 1rem; border: 1px solid #f0c49f; border-radius: 17px; background: #fffaf5; text-align: center; }
+.response-support > span { color: #b95d27; font-size: .72rem; font-weight: 900; letter-spacing: .06em; text-transform: uppercase; }
+.response-support p { margin: .3rem 0; color: var(--navy); font-size: 1.05rem; font-weight: 850; }
+.response-support p.full-hint { color: #8e3d19; }
+.response-support button { min-height: 39px; padding: .4rem .65rem; border: 1px solid #e7a171; border-radius: 999px; background: #fff; color: #9b491f; cursor: pointer; font-size: .8rem; font-weight: 850; }
+.phonics-actions .speech-control-wrap { width: auto; }
+.phonics-actions .speech-fallback { grid-column: 1 / -1; width: 100%; margin: .3rem 0 0; }
+.phonics-actions .speech-fallback button { min-height: 40px; padding: .45rem .65rem; border-width: 1px; }
+.phonics-audio-button { display: flex; width: 100%; min-height: 76px; align-items: center; justify-content: center; gap: .4rem; padding: .7rem; border: 2px solid var(--line); border-radius: 18px; background: #fff; color: var(--ink); cursor: pointer; font-weight: 850; }
+.phonics-audio-button:hover { border-color: var(--teal); background: var(--aqua); }
+
+@keyframes recordPulse { 50% { transform: scale(.7); opacity: .55; } }
+.spin { animation: spin .8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+@media (max-width: 680px) {
+  .phonics-actions .speech-control-wrap { width: 100%; }
+  .dialogue-progress article { max-width: 96%; }
+  .direct-speech-card { grid-template-columns: auto 1fr; }
+  .direct-speech-card button { grid-column: 1 / -1; justify-content: center; }
+}

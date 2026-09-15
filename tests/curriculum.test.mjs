@@ -32,6 +32,9 @@ test("every curated week has usable words, a model, reading and a verified answe
     assert.ok(week.check.options.includes(week.check.answer), `week ${week.week} answer`);
     assert.equal(week.soundFamily.length, 3, `week ${week.week} sound family`);
     assert.equal(week.soundFamily[0], week.sound.split(" trong ")[1], `week ${week.week} sound anchor`);
+    assert.equal(week.dialogue.length, 4, `week ${week.week} dialogue turns`);
+    assert.deepEqual(week.dialogue.map((turn) => turn.speaker), ["Rory", "Child", "Rory", "Child"], `week ${week.week} alternating roles`);
+    assert.ok(week.dialogue.every((turn) => turn.line.split(/\s+/).length >= 2), `week ${week.week} usable dialogue`);
     assert.ok(week.mission.length >= 60, `week ${week.week} real-world mission`);
     assert.ok(week.think.prompt.length >= 20 && week.think.starter.length >= 8, `week ${week.week} open thinking prompt`);
   }
@@ -92,14 +95,16 @@ test("fully restores week 19 and applies the reviewed vocabulary and comprehensi
 test("keeps release metadata and the offline catalog complete JSON documents", async () => {
   const release = JSON.parse(await readFile(new URL("../public/content-release.json", import.meta.url), "utf8"));
   const catalog = JSON.parse(await readFile(new URL("../public/content-catalog.json", import.meta.url), "utf8"));
-  assert.equal(release.version, "2026.09.11.1");
+  assert.equal(release.version, "2026.09.15.1");
   assert.deepEqual(catalog.reviewIntervalsDays, [1, 3, 7]);
   assert.equal(catalog.contentQuality.spiralReviewWeeks, 35);
   assert.equal(catalog.contentQuality.realWorldMissions, 36);
+  assert.equal(catalog.contentQuality.guidedDialogues, 36);
+  assert.equal(catalog.contentQuality.microphoneFallback, true);
 });
 
 test("keeps child data local and treats speech recording as self-review", async () => {
-  const source = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
+  const source = (await Promise.all(["page.tsx", "learning-ui.tsx", "speech-practice.tsx"].map((file) => readFile(new URL(`../app/${file}`, import.meta.url), "utf8")))).join("\n");
   assert.match(source, /english-raccoon-learning-v1/);
   assert.match(source, /speechSynthesis/);
   assert.match(source, /getUserMedia/);
@@ -125,9 +130,9 @@ test("packages a consistent offline vector illustration for every vocabulary car
   }
 });
 
-test("adds phonics, rhythm, matching, story ordering and sentence construction", async () => {
-  const source = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
-  for (const component of ["PhonicsLab", "RhythmChant", "PictureDrop", "MemoryMatch", "SentenceBuilder", "SpellingBuilder", "StorySequence"]) {
+test("adds phonics, dialogue, rhythm, matching, story ordering and sentence construction", async () => {
+  const source = (await Promise.all(["page.tsx", "learning-activities.tsx", "speech-practice.tsx"].map((file) => readFile(new URL(`../app/${file}`, import.meta.url), "utf8")))).join("\n");
+  for (const component of ["PhonicsLab", "DialoguePractice", "SpeechControl", "RhythmChant", "PictureDrop", "MemoryMatch", "SentenceBuilder", "SpellingBuilder", "StorySequence"]) {
     assert.match(source, new RegExp(`function ${component}`));
   }
   assert.match(source, /draggable/);
@@ -165,17 +170,32 @@ test("accepts visible spellings with repeated letters and scores hints honestly"
 });
 
 test("requires speaking evidence and never generates sentences by inserting arbitrary vocabulary", async () => {
-  const source = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
+  const source = (await Promise.all(["page.tsx", "learning-activities.tsx", "speech-practice.tsx", "lesson-view.tsx", "parent-view.tsx"].map((file) => readFile(new URL(`../app/${file}`, import.meta.url), "utf8")))).join("\n");
   assert.doesNotMatch(source, /practiceFrame|frame\.replace\("___"/);
-  assert.match(source, /step === 1 \? target\.en : week\.model/);
+  assert.match(source, /week\.dialogue\.slice\(0, 2\)/);
+  assert.match(source, /week\.dialogue\.slice\(2, 4\)/);
+  assert.match(source, /turns=\{week\.dialogue\}/);
+  assert.match(source, /Mở gợi ý \{hintLevel \+ 1\}\/3/);
   assert.match(source, /if \(typeof confidence === "number"\)/);
   assert.match(source, /Chưa có dữ liệu nói/);
   assert.match(source, /disabled=\{item\.mode === "listen" && !heard\}/);
   assert.match(source, /measurementVersion: 3/);
 });
 
+test("chooses compatible recording formats and explains recoverable microphone failures", async () => {
+  const { isAppleTouchDevice, recorderErrorMessage, selectRecordingMimeType } = await vite.ssrLoadModule("/app/audio-support.ts");
+  assert.equal(isAppleTouchDevice("Mozilla/5.0 (iPad)", 5), true);
+  assert.equal(isAppleTouchDevice("Mozilla/5.0 (Macintosh)", 5), true);
+  assert.equal(isAppleTouchDevice("Mozilla/5.0 (Linux; Android 14)", 5), false);
+  assert.equal(selectRecordingMimeType("Mozilla/5.0 (iPad)", 5, (type) => type === "audio/mp4"), "audio/mp4");
+  assert.equal(selectRecordingMimeType("Mozilla/5.0 (Linux; Android 14)", 5, (type) => type === "audio/webm;codecs=opus"), "audio/webm;codecs=opus");
+  assert.equal(selectRecordingMimeType("test", 0, () => false), undefined);
+  assert.match(recorderErrorMessage("NotAllowedError"), /cho phép micro/);
+  assert.match(recorderErrorMessage("NotReadableError"), /ứng dụng khác/);
+});
+
 test("supports safe v1 migration, streaks, badges, QR transfer and printable week sheets", async () => {
-  const source = await readFile(new URL("../app/page.tsx", import.meta.url), "utf8");
+  const source = (await Promise.all(["page.tsx", "profile-model.ts", "parent-view.tsx"].map((file) => readFile(new URL(`../app/${file}`, import.meta.url), "utf8")))).join("\n");
   const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
   assert.match(source, /migrateProfile/);
   assert.match(source, /schemaVersion: 3/);

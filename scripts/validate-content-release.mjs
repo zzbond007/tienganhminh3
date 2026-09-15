@@ -23,16 +23,16 @@ if (catalog.program?.worlds !== 9 || catalog.program?.weeks !== 36 || catalog.pr
 if (catalog.learningCycle?.length !== 5 || catalog.adaptiveBands?.join("|") !== "Gỡ nút|Vừa sức|Bứt phá") {
   throw new Error("Learning cycle or adaptive bands are incomplete.");
 }
-const requiredModes = ["phonics-lab", "rhythm-chant", "picture-drop", "memory-match", "story-sequence", "sentence-builder", "spelling-builder", "spiral-review", "thinking-prompt", "real-world-mission"];
+const requiredModes = ["phonics-lab", "rhythm-chant", "picture-drop", "memory-match", "story-sequence", "sentence-builder", "spelling-builder", "spiral-review", "thinking-prompt", "two-person-dialogue", "resilient-audio", "real-world-mission"];
 if (!requiredModes.every((mode) => catalog.interactiveModes?.includes(mode)) || catalog.offlineIllustrations < 200 || catalog.progressTransfer?.join("|") !== "qr|json") {
   throw new Error("Interactive, illustration or transfer capabilities are incomplete.");
 }
 const quality = catalog.contentQuality;
-if (quality?.earlyReadingMaxSentences !== 2 || quality?.spiralReviewWeeks !== 35 || quality?.soundFamilies !== 36 || quality?.openThinkingPrompts !== 36 || quality?.realWorldMissions !== 36) {
+if (quality?.earlyReadingMaxSentences !== 2 || quality?.spiralReviewWeeks !== 35 || quality?.soundFamilies !== 36 || quality?.openThinkingPrompts !== 36 || quality?.realWorldMissions !== 36 || quality?.guidedDialogues !== 36) {
   throw new Error("Core content-quality guarantees are incomplete.");
 }
-if (quality?.balancedAnswerPositions !== true || quality?.speakingEvidenceRequired !== true || quality?.hintAwareScoring !== true) {
-  throw new Error("Version 2.2 learning-integrity guarantees are incomplete.");
+if (quality?.balancedAnswerPositions !== true || quality?.speakingEvidenceRequired !== true || quality?.microphoneFallback !== true || quality?.hintAwareScoring !== true) {
+  throw new Error("Version 2.3 learning-integrity guarantees are incomplete.");
 }
 const rowsBlock = curriculum.match(/const rawWeeks:[\s\S]*?= \[([\s\S]*?)\n\];\n\ntype WeekEnrichment/);
 if (!rowsBlock) throw new Error("Could not locate the curated week list.");
@@ -44,13 +44,17 @@ for (const [index, match] of wordGroups.entries()) {
   const words = match[1].split(";");
   if (words.length !== 8 || words.some((word) => word.split("|").length !== 3)) throw new Error(`Week ${index + 1} has an invalid word group.`);
 }
-const enrichmentBlock = curriculum.match(/const rawEnrichment:[\s\S]*?= \[([\s\S]*?)\n\];\n\nif \(rawEnrichment/);
+const enrichmentBlock = curriculum.match(/const rawEnrichment:[\s\S]*?= \[([\s\S]*?)\n\];\n\nconst rawDialogues/);
 if (!enrichmentBlock) throw new Error("Could not locate the learning-enrichment list.");
 const enrichmentRows = enrichmentBlock[1].match(/^\s{2}\["/gm) ?? [];
 if (enrichmentRows.length !== 36) throw new Error(`Expected 36 enrichment rows, found ${enrichmentRows.length}.`);
+const dialogueBlock = curriculum.match(/const rawDialogues:[\s\S]*?= \[([\s\S]*?)\n\];\n\nif \(rawEnrichment/);
+if (!dialogueBlock) throw new Error("Could not locate the two-person dialogue list.");
+const dialogueRows = dialogueBlock[1].match(/^\s{2}\["/gm) ?? [];
+if (dialogueRows.length !== 36) throw new Error(`Expected 36 two-person dialogues, found ${dialogueRows.length}.`);
 if (!curriculum.includes("Pre‑A1 vững · tiếp cận A1")) throw new Error("Year target is missing from the curriculum.");
 if (!curriculum.includes("orderChoiceOptions(row[8].split(\";\"), row[9], index + 1)")) {
   throw new Error("Reading answer positions are not balanced at the curriculum boundary.");
 }
 
-console.log(`English Raccoon ${release.version} passed: 36 weeks, 180 sessions, 288 focus word slots, 35 spiral reviews and 36 real-world missions.`);
+console.log(`English Raccoon ${release.version} passed: 36 weeks, 180 sessions, 36 dialogues, 288 focus word slots, 35 spiral reviews and 36 real-world missions.`);

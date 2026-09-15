@@ -6,6 +6,11 @@ export type WordCard = {
   icon: string;
 };
 
+export type DialogueTurn = {
+  speaker: "Rory" | "Child";
+  line: string;
+};
+
 export type WeekPlan = {
   week: number;
   world: number;
@@ -18,6 +23,7 @@ export type WeekPlan = {
   passage: string;
   reviewWords: string[];
   soundFamily: string[];
+  dialogue: DialogueTurn[];
   mission: string;
   think: {
     prompt: string;
@@ -144,8 +150,58 @@ const rawEnrichment: Array<[string, string, string, string, string]> = [
   ["remember", "proud;protect;present", "Tổ chức phần trình bày 60 giây: giới thiệu, kể một điều đã học, hỏi–đáp và kết thúc bằng điều con tự hào.", "Kỹ năng tiếng Anh nào làm con tự hào nhất? Bằng chứng là gì?", "I am proud because I can ___."],
 ];
 
+const rawDialogues: Array<[string, string, string, string]> = [
+  ["Hello! My name is Rory. What is your name?", "Hello! My name is Minh.", "Nice to meet you, Minh.", "Nice to meet you too."],
+  ["What colour is your bag?", "It is blue.", "Can you find something red?", "Yes. This pencil is red."],
+  ["How many pencils do you have?", "I have three pencils.", "Can I have one pencil, please?", "Yes. Here you are."],
+  ["Who is in this photo?", "This is my sister. Her name is An.", "What can you do together?", "We can draw together."],
+
+  ["Where is Dad?", "He is in the kitchen.", "And where is the cat?", "It is in the garden."],
+  ["Where is your lamp?", "The lamp is on my desk.", "What is in the box?", "My toys are in the box."],
+  ["What do you do first in the morning?", "I brush my teeth first.", "What do you do next?", "I eat breakfast and go to school."],
+  ["What do you like for breakfast?", "I like bread and eggs.", "Would you like some milk?", "Yes, please. Thank you."],
+
+  ["What is your favourite subject?", "My favourite subject is English.", "Why do you like it?", "Because I can speak with new friends."],
+  ["When do you have music?", "I have music on Tuesday.", "What do you do on Sunday?", "I play with my cousin on Sunday."],
+  ["What can you do well?", "I can swim and ride a bike.", "Can you sing?", "Not yet, but I can practise."],
+  ["Please help me with this ruler.", "Here you go.", "Thank you for sharing.", "You're welcome."],
+
+  ["Touch your nose and clap your hands.", "Like this?", "Yes! Now jump with your legs.", "I can do it."],
+  ["How do you feel today?", "I feel happy because I am with my friend.", "What can you do if you feel worried?", "I can breathe slowly and ask for help."],
+  ["Tell me about your friend.", "My friend is friendly and funny.", "What does your friend like?", "My friend likes drawing."],
+  ["Do you like reading?", "Yes, I do.", "What can we do together?", "We can read a funny story."],
+
+  ["Where would you like to go?", "Let's go to the library.", "Why the library?", "Because we can find new stories there."],
+  ["How do I get to the library?", "Go straight and turn left at the shop.", "Is it next to the park?", "Yes, it is between the park and the shop."],
+  ["How do you go to school?", "I go to school by bus.", "What keeps you safe on a bike?", "A helmet keeps me safe."],
+  ["Hello. How much is the kite?", "It is five dollars.", "I only have three dollars.", "You can choose the cheaper ball."],
+
+  ["What pet do you have?", "I have a rabbit.", "What can your rabbit do?", "It can jump, and I feed it carrots."],
+  ["It has a long neck. What is it?", "Is it a giraffe?", "Yes! Why do you think so?", "Because a giraffe has a long neck."],
+  ["What is the weather like today?", "It is windy and cool today.", "What should we do?", "Let's play inside and wear warm clothes."],
+  ["What can you see by the river?", "I can see trees, flowers and smooth stones.", "How can we protect this place?", "We can take our rubbish home."],
+
+  ["It's your turn. What is the rule?", "I roll the ball to you.", "What happens next?", "You roll it back. That keeps the game fair."],
+  ["What happens first in your story?", "First, we walk into the forest.", "What happens next?", "Then we find a key and open a box."],
+  ["What is in your magic world?", "There is a bright castle on an island.", "How do we reach it?", "We cross a bridge over the river."],
+  ["Where is the cat?", "The cat is behind the chair.", "Is the ball in the same place?", "No. The ball is under the table."],
+
+  ["What can you hear?", "I can hear a loud bell.", "What does the teddy bear feel like?", "It feels soft when I touch it."],
+  ["What is your boat made of?", "It is made of paper.", "Why did you choose paper?", "Because it is light and easy to fold."],
+  ["What can you see in the night sky?", "I can see the moon and stars.", "What shines in the day?", "The sun shines in the day."],
+  ["How can we help Earth today?", "We can reuse a bottle and save water.", "What else can we do?", "We can turn off the lights."],
+
+  ["Are you free tomorrow afternoon?", "Yes, I am. Where shall we meet?", "Let's meet at the park.", "Great. I will bring a ball."],
+  ["Our paper bridge falls. What can we do?", "Maybe we can try again.", "What should we change?", "We can use more paper because it may be stronger."],
+  ["What is special to you?", "This book is special because it is a gift from Grandma.", "Where do you keep it?", "I keep it in a blue box."],
+  ["What can you do in English now?", "I can listen, speak and read in English.", "What makes you feel proud?", "I feel proud because I kept trying."],
+];
+
 if (rawEnrichment.length !== rawWeeks.length) {
   throw new Error(`Curriculum enrichment mismatch: ${rawEnrichment.length}/${rawWeeks.length} weeks.`);
+}
+if (rawDialogues.length !== rawWeeks.length) {
+  throw new Error(`Curriculum dialogue mismatch: ${rawDialogues.length}/${rawWeeks.length} weeks.`);
 }
 
 const enrichments: WeekEnrichment[] = rawEnrichment.map(([review, sounds, mission, prompt, starter]) => ({
@@ -174,6 +230,7 @@ export const weeks: WeekPlan[] = rawWeeks.map((row, index) => ({
   passage: row[6],
   reviewWords: enrichments[index].reviewWords,
   soundFamily: enrichments[index].soundFamily,
+  dialogue: rawDialogues[index].map((line, turnIndex) => ({ speaker: turnIndex % 2 === 0 ? "Rory" : "Child", line })),
   mission: enrichments[index].mission,
   think: enrichments[index].think,
   check: {
@@ -197,7 +254,7 @@ export const worlds = [
 
 export const sessionKinds = [
   { key: "listen", title: "Tai thính", subtitle: "Nghe và nhận ra", icon: "🎧" },
-  { key: "speak", title: "Nói cùng Rory", subtitle: "Bắt chước và ghi âm", icon: "🎙️" },
+  { key: "speak", title: "Nói cùng Rory", subtitle: "Nghe – đáp lời – ghi âm", icon: "🎙️" },
   { key: "read", title: "Mắt tinh", subtitle: "Đọc và hiểu ý", icon: "📖" },
   { key: "recall", title: "Kho từ nhớ lâu", subtitle: "Nhớ lại không nhìn", icon: "🧠" },
   { key: "mission", title: "Nhiệm vụ giao tiếp", subtitle: "Dùng tiếng Anh thật", icon: "🗣️" },

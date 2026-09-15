@@ -1,8 +1,8 @@
 {
   "schemaVersion": 3,
-  "version": "2026.09.11.1",
+  "version": "2026.09.15.1",
   "title": "English Raccoon · Tiếng Anh thực hành lớp 3",
-  "publishedAt": "2026-09-10",
+  "publishedAt": "2026-09-15",
   "contentScope": {
     "worlds": 9,
     "programWeeks": 36,
@@ -30,7 +30,10 @@
     }
   },
   "notes": [
-    "Phiên bản 2.2 đã kiểm định trọn vẹn 36 tuần, 180 buổi và 288 vị trí từ/cụm từ.",
+    "Phiên bản 2.3 đã kiểm định trọn vẹn 36 tuần, 180 buổi và 288 vị trí từ/cụm từ.",
+    "Mỗi tuần có một hội thoại hai vai gồm bốn lượt; buổi nói đi từ đáp lời có hướng dẫn tới đóng vai độc lập với ba tầng gợi ý.",
+    "Lớp ghi âm kiểm tra hỗ trợ thật, chọn định dạng tương thích cho Safari/iPad và Chrome/Android, xử lý lỗi micro và luôn có lối luyện nói trực tiếp.",
+    "Giọng đọc chờ sau thao tác hủy trước khi phát để tránh lỗi im lặng trên Safari; bài chỉ ghi nhận đã nghe khi giọng thực sự bắt đầu hoặc có người lớn đọc thay.",
     "Đáp án đọc hiểu và chẩn đoán được phân bố cân bằng; câu nghe chỉ mở đáp án sau khi bé bấm nghe.",
     "Điểm tự tin chỉ được ghi khi có bằng chứng luyện nói; dữ liệu điểm cũ được bảo toàn nhưng không dùng cho thích ứng.",
     "Xếp chữ đánh giá chuỗi nhìn thấy nên xử lý đúng từ có chữ lặp; việc dùng gợi ý được phản ánh trong điểm tự tìm ra.",
